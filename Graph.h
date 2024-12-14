@@ -22,6 +22,7 @@ public:
     GraphEdge(GraphNode* targetNode, int weight) : targetNode(targetNode), weight(weight) {}
 };
 
+// Class for Graph Node
 class GraphNode {
 public:
     string data;
