@@ -6,13 +6,21 @@
 #include <unordered_map>
 #include <queue>
 #include <string>
-#include <algorithm> // Include for sort and remove_if
-#include <climits>   // Include for INT_MAX
+#include <algorithm> 
+#include <climits>   
 
 using namespace std;
 
-// Forward declaration of GraphNode
-class GraphNode;
+class GraphEdge;
+
+class GraphNode {
+public:
+    string data;
+    vector<GraphEdge> edges;
+
+    GraphNode(const string& data) : data(data) {}
+};
+
 
 class GraphEdge {
 public:
@@ -22,14 +30,6 @@ public:
     GraphEdge(GraphNode* targetNode, int weight) : targetNode(targetNode), weight(weight) {}
 };
 
-// Class for Graph Node
-class GraphNode {
-public:
-    string data;
-    vector<GraphEdge> edges;
-
-    GraphNode(const string& data) : data(data) {}
-};
 
 class Graph {
 public:
@@ -198,11 +198,12 @@ public:
 
     void initializeGraph(Graph& graph) {
         vector<string> locationNames = {"Gate1", "HikingTrailStart", "NSHS", "NSTP", "SINES", "Gate10", "GirlsHostels",
-                                                  "OldGym", "S3H", "NBS", "C1", "IGIS", "SADA", "JinnahAuditorium", "MainOffice",
+                                                  "OldGym", "S3H", "NBS", "C1", "C3", "IGIS", "SADA", "JinnahAuditorium", "MainOffice",
                                                   "CentralLibrary", "ConvocationGround", "SEECS", "C2", "MasjidRehmat", "Admin",
                                                   "Gate15", "SCME", "IESE", "ASAB", "IqbalSquare", "Gate2", "BoysHostels", "Retro",
                                                   "USPCASE", "ExamHall", "Gate4", "NICE", "SNS", "SMME", "NCAI", "SportsComplex",
-                                                  "NMC", "ResidentialArea", "IAEC"};
+                                                  "NMC", "ResidentialArea", "IAEC", "NCLS"};
+
 
         sort(locationNames.begin(), locationNames.end());
 
@@ -210,10 +211,10 @@ public:
             graph.addNode(name);
         }
 
-        graph.addEdge("Gate1", "HikingTrailStart", 150);
+       graph.addEdge("Gate1", "HikingTrailStart", 150);
         graph.addEdge("HikingTrailStart", "NSHS", 300);
         graph.addEdge("HikingTrailStart", "NSTP", 530);
-        graph.addEdge("HikingTrailStart", "OldGym", 850);
+        graph.addEdge("HikingTrailStart", "GirlsHostels", 850);
         graph.addEdge("NSHS", "NSTP", 350);
         graph.addEdge("NSHS", "OldGym", 650);
         graph.addEdge("NSTP", "SINES", 50);
@@ -235,16 +236,23 @@ public:
         graph.addEdge("ExamHall", "Gate4", 40);
         graph.addEdge("NSTP", "OldGym", 680);
         graph.addEdge("NSTP", "GirlsHostels", 750);
-        graph.addEdge("OldGym", "GirlsHostels", 170);
+        graph.addEdge("OldGym", "GirlsHostels", 60);
+        graph.addEdge("GirlsHostels", "MainOffice", 130);
         graph.addEdge("Gate10", "NSTP", 700);
+        graph.addEdge("NSTP", "NCLS", 1000);
+        graph.addEdge("Gate10", "NCLS", 1200);
         graph.addEdge("Gate10", "GirlsHostels", 1200);
         graph.addEdge("Gate10", "JinnahAuditorium", 1080);
-        graph.addEdge("JinnahAuditorium", "MainOffice", 100);
-        graph.addEdge("MainOffice", "CentralLibrary", 70);
-        graph.addEdge("JinnahAuditorium", "ConvocationGround", 40);
-        graph.addEdge("MainOffice", "ConvocationGround", 40);
+        graph.addEdge("JinnahAuditorium", "MainOffice", 40);
+        graph.addEdge("MainOffice", "CentralLibrary", 60);
+        graph.addEdge("JinnahAuditorium", "ConvocationGround", 30);
+        graph.addEdge("MainOffice", "ConvocationGround", 25);
+        graph.addEdge("MainOffice", "Gate10", 1250);
         graph.addEdge("CentralLibrary", "ConvocationGround", 40);
+        graph.addEdge("CentralLibrary", "C3", 90);
+        graph.addEdge("C2", "C3", 300);
         graph.addEdge("CentralLibrary", "SEECS", 250);
+        graph.addEdge("ConvocationGround", "SEECS", 210);
         graph.addEdge("SEECS", "C2", 170);
         graph.addEdge("SEECS", "IAEC", 230);
         graph.addEdge("C2", "IAEC", 160);
@@ -254,13 +262,46 @@ public:
         graph.addEdge("IqbalSquare", "Gate2", 270);
         graph.addEdge("Admin", "Gate15", 250);
         graph.addEdge("C2", "Gate15", 250);
-        graph.addEdge("Gate4", "SCME", 200);
-        graph.addEdge("SCME", "IESE", 130);
-        graph.addEdge("IESE", "ASAB", 150);
-        graph.addEdge("ASAB", "IqbalSquare", 90);
+        graph.addEdge("BoysHostels", "Gate15", 170);
+        graph.addEdge("OldGym", "S3H", 50);
+        graph.addEdge("OldGym", "C1", 230);
+        graph.addEdge("OldGym", "SCME", 380);
+        graph.addEdge("OldGym", "IESE", 260);
+        graph.addEdge("SCME", "IESE", 280);
+        graph.addEdge("SCME", "C1", 260);
+        graph.addEdge("IESE", "C1", 80);
+        graph.addEdge("C1", "SADA", 110);
+        graph.addEdge("SADA", "ASAB", 90);
+        graph.addEdge("SADA", "IGIS", 150);
+        graph.addEdge("IESE", "ASAB", 240);
+        graph.addEdge("ASAB", "IqbalSquare", 190);
     }
-};
 
+void getRoute(Graph map, string source , string destination) {
+    
+    map.initializeGraph(map);
+  
+    vector<string> shortestPath = map.findShortestPath(source, destination);
+    int size = shortestPath.size() , count = 0;
+
+    if (!shortestPath.empty()) {
+        cout << "Shortest path from " << source << " to " << destination << ": ";
+        
+        for (const auto& node : shortestPath) {
+            if(count++ + 1 == size){
+            cout << node << " ";
+            }
+            else
+            cout << node << " -> ";
+        }
+        cout << endl;
+
+        int distance = map.findDistance(shortestPath);
+        cout << "\nTotal distance: " << distance << " meters" << endl;
+    }
+
+  }
+};
 
 
 #endif
