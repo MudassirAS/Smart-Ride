@@ -1,0 +1,42 @@
+[
+    {
+        "DriverID": "D1",
+        "Location": "SNS",
+        "Name": "Asad",
+        "Password": "12345678",
+        "PhoneNo": "03211234567",
+        "VehicleName": "Suzuki-Mehran",
+        "VehicleRegNumber": "ABC-123",
+        "fuelAverage": 15
+    },
+    {
+        "DriverID": "D2",
+        "Location": "S3H",
+        "Name": "Hadi",
+        "Password": "Hadi123",
+        "PhoneNo": "03339876543",
+        "VehicleName": "Hyundai-Elantra",
+        "VehicleRegNumber": "ELA-123",
+        "fuelAverage": 13
+    },
+    {
+        "DriverID": "D3",
+        "Location": "Gate1",
+        "Name": "Ahmed",
+        "Password": "Ahmed123",
+        "PhoneNo": "03217864568",
+        "VehicleName": "Suzuki-Alto",
+        "VehicleRegNumber": "SBH-98",
+        "fuelAverage": 18
+    },
+    {
+        "DriverID": "D4",
+        "fuelAverage": 11,
+        "Location": "Gate2",
+        "Name": "Ali Asghar",
+        "Password": "ali123",
+        "PhoneNo": "0331-6248864",
+        "VehicleName": "Honda-Civic",
+        "VehicleRegNumber": "ISB-223"
+    }
+]
