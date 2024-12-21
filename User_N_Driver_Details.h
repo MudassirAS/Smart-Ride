@@ -1,5 +1,5 @@
-# ifndef User_N_DRIVER_DETAILS
-# define User_N_DRIVER_DETAILS
+# ifndef MYJSON_H
+# define MYJSON_H
 
 #include <iostream>
 #include <iomanip>
@@ -11,6 +11,8 @@
 #include "RideRequest.h"
 #include "Json_Manager.h"
 #include "getterFunctions.h"
+#include <queue>
+#include <ctime>
 
 using namespace std;
 using json = nlohmann::json;
@@ -68,7 +70,8 @@ bool userLogin(const string& username, const string& password) {
     return false;
 }
 
-void acceptRideRequest(int size) {
+void acceptRideRequest(int size){
+
     cout << "\nEnter the number corresponding to the ride request you want to accept, or '0' to log out: ";
 
     int requestChoice;
@@ -77,7 +80,7 @@ void acceptRideRequest(int size) {
     if (cin.fail() || requestChoice < 0 || requestChoice > size) {
         cout << "Invalid input. Please enter a valid number." << endl;
         cin.clear();
-        cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
     } 
     else if (requestChoice > 0) {
         // Find and remove the accepted ride request
@@ -87,44 +90,38 @@ void acceptRideRequest(int size) {
         for (const auto& request : rideRequestArray) {
             currentIndex++;
             if (currentIndex == requestChoice) {
-                cout << "\nYou have accepted the ride of " << request["User"] << " from " 
-                     << request["Source"] << " to " << request["Destination"] 
-                     << " with a fare of " << request["Fare"] << " PKR." << endl;
-
-                // Unpack the day and date
-                auto dateInfo = getCurrentDayAndDate();
-                string currentDay = dateInfo.first;
-                string currentDate = dateInfo.second;
-
+                cout << "\nYou have accepted the ride of "<< request["User"] <<" from " 
+                        << request["Source"] << " to " << request["Destination"] 
+                        << " with a fare of " << request["Fare"] << " PKR." << endl;
+                
+                auto [currentDay, currentDate] = getCurrentDayAndDate();
                 string driverVehicle = getDriverVehicle(request["Driver Name"]);
-
-                // Initialize JSON object explicitly
-                acceptedRide = json{
-                    {"User", request["User"]},
-                    {"Source", request["Source"]},
-                    {"Destination", request["Destination"]},
-                    {"Driver Name", request["Driver Name"]},
-                    {"Driver Vehicle", driverVehicle},
-                    {"Fare", request["Fare"]},
-                    {"Day", currentDay},
-                    {"Date", currentDate},
-                    {"Ride Status", ""}
-                };
-
-                rideHistory.push_back(acceptedRide);
-                saveToFile(RIDE_HISTORY, rideHistory);
-                continue;
+               
+                acceptedRide = {
+                {"User", request["User"]},
+                {"Source", request["Source"] },
+                {"Destination", request["Destination"] },
+                {"Driver Name", request["Driver Name"]},
+                {"Driver Vehicle", driverVehicle},
+                {"Fare", request["Fare"]},
+                {"Day", currentDay},
+                {"Date", currentDate},
+                {"Ride Status", ""}
+            };        
+              
+               rideHistory.push_back(acceptedRide);
+               saveToFile(RIDE_HISTORY, rideHistory);
+               continue;
             }
-            updatedRequests.push_back(request);
-        }
 
+            updatedRequests.push_back(request);
+        }      
         // Save the updated rideRequests.json
         ofstream outFile("rideRequests.json");
         outFile << setw(4) << updatedRequests;
-        outFile.close();
+        outFile.close();        
     }
 }
-
 
 void availableRideRequests(const string& name){
 
@@ -199,8 +196,26 @@ bool driverLogin(const string& username, const string& password) {
               setDriverLocation(username);
             else
               cout << "\nYour current location is already set to: " << driver["Location"] << endl;
-            
-            availableRideRequests(username); 
+
+            // Load RideRequestQueue.json
+            json rideRequestQueue;
+            std::ifstream inFile("RideRequestQueue.json");
+            if (inFile.is_open()) {
+                inFile >> rideRequestQueue;
+                inFile.close();
+            } else {
+                // If the file doesn't exist or can't be read, assume it's empty
+                rideRequestQueue = json::array();
+            }
+
+            // Check if the queue is empty or not
+            if (!rideRequestQueue.empty()) {
+                // Call assignRideRequestToDriver if the queue is not empty
+                assignRideRequestToDriver(username);
+            } else {
+                // Call availableRideRequests if the queue is empty
+                availableRideRequests(username);
+            }
          
          return true;
         }
