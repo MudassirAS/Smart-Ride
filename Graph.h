@@ -43,6 +43,26 @@ public:
         return nullptr;
     }
 
+    GraphEdge* getEdge(string& src, string& dest) {
+        GraphNode* srcNode = getNode(src);
+        GraphNode* destNode = getNode(dest);
+
+        if (srcNode == nullptr || destNode == nullptr) 
+            return nullptr;
+
+        for (auto& edge : srcNode->edges) {
+            if (edge.targetNode == destNode) 
+                return &edge;
+        }
+        return nullptr; // Edge not found
+    }
+
+    int getEdgeWeight(string& src, string& dest) {
+        GraphEdge* edge = getEdge(src, dest);
+        if(edge != nullptr)
+            return edge->weight;
+    }
+
     void addNode(const string& data) {
         if (getNode(data) != nullptr) {
             cout << "Node " << data << " already exists." << endl;
