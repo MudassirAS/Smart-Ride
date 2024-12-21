@@ -13,11 +13,13 @@ const string USERS_FILE = "users.json";
 const string DRIVERS_FILE = "drivers.json";
 const string RIDE_REQUESTS_FILE = "rideRequests.json";
 const string RIDE_HISTORY = "rideHistory.json";
+const string RIDE_REQUEST_QUEUE = "rideRequestQueue.json";
 
 json usersArray; 
 json driversArray;
 json rideRequestArray;
 json rideHistory;
+json rideRequestQueue;
 
 int userIDCounter = 1;
 int driverIDCounter = 1;
@@ -51,6 +53,7 @@ void initialization() {
     driversArray = loadFromFile(DRIVERS_FILE);
     rideRequestArray = loadFromFile(RIDE_REQUESTS_FILE);
     rideHistory= loadFromFile(RIDE_HISTORY);
+    rideRequestQueue = loadFromFile(RIDE_REQUEST_QUEUE);
 
     // Determine the next available IDs
     for (const auto& user : usersArray) {
