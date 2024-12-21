@@ -16,35 +16,113 @@
 using namespace std;
 using json = nlohmann::json;
 
-const int FUEL_PRICE_PER_LITRE = 260; // PKR
-
 #undef max
 
-const int FUEL_PRICE_PER_LITRE = 260; // PKR
 
+// Function to add a ride request when no drivers are available
+void addRideRequest(const string& name, const string& source, const string& destination) {
+    
+    // Create a new ride request as a JSON object
+    json rideRequest = {
+        {"User", name},
+        {"Source", source},
+        {"Destination", destination},
+        {"fare", 0.0}
+    };
 
+    // Add the new ride request to the queue (array)
+    rideRequestQueue.push_back(rideRequest);
 
-// Function that tracks the route and prints live location of driver at any point. Also updates driver's position when they reach a new location
-void trackRoute(vector<string> path, int totalDistance, Graph map, string driverName) {
-    int distanceCovered = 0;
-    json driver;
+    // Write the updated queue back to the file
+    saveToFile(RIDE_REQUEST_QUEUE,rideRequestQueue);
+    cout << "Ride request added to the queue successfully!" << endl;
+}
 
-    for(auto& entry : driversArray)     // Searching for the driver's information just once
-        if(entry["Name"] == driverName)
-            driver = entry;
+void assignRideRequestToDriver(const string& driverName) {
+    Graph map;
+    map.initializeGraph(map);
 
-    for(int i = 0; i < path.size(); i++) {
-        cout << path[i];
-        driver["Location"] = path[i];
-        int tempDistance = map.getEdgeWeight(path[i], path[i+1]);     // Distance from current location to the next location 
-
-        for(int d = 0; d < tempDistance; d += 30) {     // Prints a new dot for every 30 metres covered (showing time spent from reaching one location to another)
-            Sleep(500);
-            cout << " .";
-        }
-
-        distanceCovered += tempDistance;
+    // Check if the queue is empty
+    if (rideRequestQueue.empty()) {
+        cout << "No ride requests available in the queue." << endl;
+        return;
     }
+    
+    // Display all ride requests in the queue with an index (1, 2, 3, ...)
+    cout << "\nAvailable Ride Requests for Driver: " << driverName << endl;
+    for (size_t i = 0; i < rideRequestQueue.size(); ++i) {
+        cout << "Ride " << i + 1 << ": " << endl;
+        cout << "User: " << rideRequestQueue[i]["User"] << endl;
+        cout << "Source: " << rideRequestQueue[i]["Source"] << endl;
+        cout << "Destination: " << rideRequestQueue[i]["Destination"] << endl;
+        // Calculate the fare
+        string source = rideRequestQueue[i]["Source"];
+        string destination = rideRequestQueue[i]["Destination"];
+        double fare = getFare(source, destination, driverName);
+        cout << "Fare: " << fare << " PKR" << endl;
+
+        cout << "-----------------------------" << endl;
+    }
+
+    // Ask the driver to select which ride they want to accept
+    int selectedRide = -1;
+    while (true) {
+        cout << "\nSelect a ride (1-" << rideRequestQueue.size() << "): ";
+        cin >> selectedRide;
+
+        if (cin.fail() || selectedRide < 1 || selectedRide > rideRequestQueue.size()) {
+            cout << "Invalid choice. Please try again." << endl;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        } else {
+            break;
+        }
+    }
+
+
+    // Get the selected ride request from the queue
+    json acceptedRide, selectedRideRequest = rideRequestQueue[selectedRide - 1];
+
+    // Display the selected ride request to the driver
+    cout << "\nRide Selected by Driver: " << driverName << endl;
+    cout << "User: " << selectedRideRequest["User"] << endl;
+    cout << "Source: " << selectedRideRequest["Source"] << endl;
+    cout << "Destination: " << selectedRideRequest["Destination"] << endl;
+
+    // Calculate the fare
+    string source = selectedRideRequest["Source"];
+    string destination = selectedRideRequest["Destination"];
+    string driverVehicle = getDriverVehicle(driverName);
+    double fare = getFare(source, destination, driverName);
+    auto [currentDay, currentDate] = getCurrentDayAndDate();
+    cout << "Calculated Fare: " << fare << " PKR" << endl;
+
+    // Add the fare to the selected ride request
+    selectedRideRequest["Fare"] = fare;
+
+    // Remove the selected ride request from the queue
+    rideRequestQueue.erase(rideRequestQueue.begin() + selectedRide - 1);
+
+    // Save the updated queue back to the file
+    saveToFile(RIDE_REQUEST_QUEUE,rideRequestQueue);
+    cout << "\nRide request has been assigned to you successfully." << endl;
+
+    acceptedRide = {
+                {"User", selectedRideRequest["User"]},
+                {"Source", selectedRideRequest["Source"] },
+                {"Destination", selectedRideRequest["Destination"] },
+                {"Driver Name", driverName},
+                {"Driver Vehicle", driverVehicle},
+                {"Fare", fare},
+                {"Day", currentDay},
+                {"Date", currentDate},
+                {"Ride Status", ""}
+            };     
+
+            
+            rideHistory.push_back(acceptedRide);
+            saveToFile(RIDE_HISTORY, rideHistory);   
+
 }
 
 // Request a ride and find the top 3 nearest drivers with fare calculation
@@ -82,22 +160,24 @@ void requestRide(const string& username) {
         vector<string> availableDrivers;
         for(auto& driver : driversArray) {
             if(driver["Location"] != "")
-                availableDrivers.push_back(driver["DriverID"]);
+                availableDrivers.push_back(driver["Name"]);
         }
 
         if (availableDrivers.empty() || driversArray.empty()) {
-            cout << "No drivers available at the moment." << endl;
+
+            cout << "No drivers are available at the moment. Adding your request to the queue.\n";
+            addRideRequest(username,source,destination);
             return;
         }
 
         vector<tuple<string, string, int, string, double>> driverDistancesAndFares;
 
         // Calculate distance and fare for each driver
-        for (const auto& DriverID : availableDrivers) {
-            string username = getDriverName(DriverID);
-            string driverLocation = getDriverLocation(DriverID);
-            string vehicleName = getVehicleName(DriverID);
-            float fuelMileage = getFuelAverage(DriverID);
+        for (const auto& DriverName : availableDrivers) {
+            string username = getDriverName(DriverName);
+            string driverLocation = getDriverLocation(DriverName);
+            string vehicleName = getVehicleName(DriverName);
+            double fuelMileage = getFuelAverage(DriverName);
 
             // Find corresponding fuelAvg from the drivers file
             auto driverData = find_if(driversArray.begin(), driversArray.end(), [&](const json& d) {
@@ -108,15 +188,8 @@ void requestRide(const string& username) {
                 // Calculate the distance and fare
                 vector<string> driverToSourcePath = map.findShortestPath(driverLocation, source);
                 int driverDistance = map.findDistance(driverToSourcePath);
-
-                vector<string> sourceToDestPath = map.findShortestPath(source, destination);
-            
-                double sourceToDestDistance = map.findDistance(sourceToDestPath) / 1000.0;
-
-                // Calculate fare using the given formula
-                double fare = ((sourceToDestDistance / fuelMileage) * FUEL_PRICE_PER_LITRE) * 10;
-                fare = roundToTwoDecimals(fare);
-
+                cout << username; 
+                double fare = getFare(source, destination, username);
                 // Store the data in the tuple
                 driverDistancesAndFares.push_back({username, vehicleName, driverDistance, driverLocation, fare});
             }
@@ -176,6 +249,5 @@ void requestRide(const string& username) {
             cout << "\nYour ride request has been sent to Driver: " << selectedDriverName << endl;     
     }
 }
-
 
 #endif
