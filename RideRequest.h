@@ -18,6 +18,35 @@ using json = nlohmann::json;
 
 const int FUEL_PRICE_PER_LITRE = 260; // PKR
 
+#undef max
+
+const int FUEL_PRICE_PER_LITRE = 260; // PKR
+
+
+
+// Function that tracks the route and prints live location of driver at any point. Also updates driver's position when they reach a new location
+void trackRoute(vector<string> path, int totalDistance, Graph map, string driverName) {
+    int distanceCovered = 0;
+    json driver;
+
+    for(auto& entry : driversArray)     // Searching for the driver's information just once
+        if(entry["Name"] == driverName)
+            driver = entry;
+
+    for(int i = 0; i < path.size(); i++) {
+        cout << path[i];
+        driver["Location"] = path[i];
+        int tempDistance = map.getEdgeWeight(path[i], path[i+1]);     // Distance from current location to the next location 
+
+        for(int d = 0; d < tempDistance; d += 30) {     // Prints a new dot for every 30 metres covered (showing time spent from reaching one location to another)
+            Sleep(500);
+            cout << " .";
+        }
+
+        distanceCovered += tempDistance;
+    }
+}
+
 // Request a ride and find the top 3 nearest drivers with fare calculation
 void requestRide(const string& username) {
     Graph map;
