@@ -11,11 +11,12 @@
 
 using namespace std;
 using json = nlohmann::json;
+
 const int FUEL_PRICE_PER_LITRE = 260; // PKR
 
-string getDriverName(string name) {
+string getDriverName(string username) {
     for (auto& entry : driversArray)
-        if(entry["Name"] == name)
+        if(entry["Name"] == username)
             return entry["Name"];
     
     return "";
@@ -29,29 +30,29 @@ string getDriverVehicle(string name) {
     return "";
 }
 
-string getDriverLocation(string name) {
+string getDriverLocation(string username) {
     for (auto& entry : driversArray)
-        if(entry["Name"] == name)
+        if(entry["Name"] == username)
             return entry["Location"];
     
     return "";
 }
 
-string getVehicleName(string name) {
+string getVehicleName(string username) {
     for (auto& entry : driversArray)
-        if(entry["Name"] == name)
+        if(entry["Name"] == username)
             return entry["VehicleName"];
     
     return "";
 }
 
-double getFuelAverage(string name) {
+double getFuelAverage(string username) {
     for (auto& entry : driversArray)
-        if (entry["Name"] == name) 
+        if (entry["Name"] == username) 
             if (entry.contains("FuelAverage") && entry["FuelAverage"].is_number())
                 return entry["FuelAverage"];
             else
-                return 0.0;             
+                return 0.0;              
 
     return 0.0;
 }
@@ -60,19 +61,20 @@ double roundToTwoDecimals(double value) {
     return round(value * 100.0) / 100.0;  
 }
 
-double getFare(string source , string destination, string name){
-           Graph map;
-           map.initializeGraph(map);
+double getFare(string source, string destination, string username){
 
-                vector<string> sourceToDestPath = map.findShortestPath(source, destination);
-            
-                double sourceToDestDistance = map.findDistance(sourceToDestPath) / 1000.0;
+    Graph map;
+    map.initializeGraph(map);    
+    vector<string> sourceToDestPath = map.findShortestPath(source, destination);
 
-                // Calculate fare using the given formula
-                double fuelMileage = getFuelAverage(name);
-                double fare = ((sourceToDestDistance / fuelMileage) * FUEL_PRICE_PER_LITRE) * 10;
-                fare = roundToTwoDecimals(fare);
-     return fare;           
+    double sourceToDestDistance = map.findDistance(sourceToDestPath) / 1000.0;
+
+    double fuelMileage = getFuelAverage(username);
+    
+    double fare = ((sourceToDestDistance / fuelMileage) * FUEL_PRICE_PER_LITRE) * 10;
+    fare = roundToTwoDecimals(fare);
+
+    return fare;
 }
 
 pair<string, string> getCurrentDayAndDate() {

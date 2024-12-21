@@ -79,7 +79,10 @@ int main() {
                 cout << "\nEnter Password: ";
                 getline(cin, password);
                 while(!userLogin(username, password)) {
-                    cout << "Wrong password! Please try again: ";
+                    cout << "Invalid username or password! Please try again: ";
+                    cout << "\n\nEnter username: ";
+                    getline(cin, username);
+                    cout << "\nEnter Password: ";
                     getline(cin, password);
                 }
 
@@ -97,7 +100,10 @@ int main() {
                 cout << "\nEnter Password: ";
                 getline(cin, password);
                 while(!driverLogin(username, password)) {
-                    cout << "Wrong password! Please try again: ";
+                    cout << "Invalid username or password! Please try again: ";
+                    cout << "\n\nEnter username: ";
+                    getline(cin, username);
+                    cout << "\nEnter Password: ";
                     getline(cin, password);
                 }
 

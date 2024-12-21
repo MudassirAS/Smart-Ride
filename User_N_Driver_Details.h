@@ -1,5 +1,5 @@
-# ifndef MYJSON_H
-# define MYJSON_H
+# ifndef User_N_DRIVER_DETAILS
+# define User_N_DRIVER_DETAILS
 
 #include <iostream>
 #include <iomanip>
@@ -11,8 +11,6 @@
 #include "RideRequest.h"
 #include "Json_Manager.h"
 #include "getterFunctions.h"
-#include <queue>
-#include <ctime>
 
 using namespace std;
 using json = nlohmann::json;
@@ -66,88 +64,9 @@ bool userLogin(const string& username, const string& password) {
             return true;
         }
     }
-    cout << "Invalid username or password." << endl;
     return false;
 }
 
-void acceptRideRequest(int size){
-
-    cout << "\nEnter the number corresponding to the ride request you want to accept, or '0' to log out: ";
-
-    int requestChoice;
-    cin >> requestChoice;
-
-    if (cin.fail() || requestChoice < 0 || requestChoice > size) {
-        cout << "Invalid input. Please enter a valid number." << endl;
-        cin.clear();
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    } 
-    else if (requestChoice > 0) {
-        // Find and remove the accepted ride request
-        json updatedRequests, acceptedRide;
-        int currentIndex = 0;
-
-        for (const auto& request : rideRequestArray) {
-            currentIndex++;
-            if (currentIndex == requestChoice) {
-                cout << "\nYou have accepted the ride of "<< request["User"] <<" from " 
-                        << request["Source"] << " to " << request["Destination"] 
-                        << " with a fare of " << request["Fare"] << " PKR." << endl;
-                
-                auto [currentDay, currentDate] = getCurrentDayAndDate();
-                string driverVehicle = getDriverVehicle(request["Driver Name"]);
-               
-                acceptedRide = {
-                {"User", request["User"]},
-                {"Source", request["Source"] },
-                {"Destination", request["Destination"] },
-                {"Driver Name", request["Driver Name"]},
-                {"Driver Vehicle", driverVehicle},
-                {"Fare", request["Fare"]},
-                {"Day", currentDay},
-                {"Date", currentDate},
-                {"Ride Status", ""}
-            };        
-              
-               rideHistory.push_back(acceptedRide);
-               saveToFile(RIDE_HISTORY, rideHistory);
-               continue;
-            }
-
-            updatedRequests.push_back(request);
-        }      
-        // Save the updated rideRequests.json
-        ofstream outFile("rideRequests.json");
-        outFile << setw(4) << updatedRequests;
-        outFile.close();        
-    }
-}
-
-void availableRideRequests(const string& name){
-
-        cout << "\nAvailable Ride Requests for You:" << endl;
-
-        bool hasRequests = false;
-        int count=1 , size = 0;
-        for (const auto& request : rideRequestArray) {
-            if (request["Driver Name"] == name) {
-                hasRequests = true;
-                cout <<count<<"- " << "User: " << request["User"]
-                        << ", Source: " << request["Source"] 
-                        << ", Destination: " << request["Destination"]
-                        << ", Fare: " << request["Fare"] << " PKR" << endl;
-                        count++;
-            }
-            ++size;
-        }
-
-        if (!hasRequests) {
-            cout << "\nNo ride requests available for you at the moment." << endl;
-        }
-
-        else if (hasRequests)
-          acceptRideRequest(size);
-}
 // Set driver location
 void setDriverLocation(const string& username) {
     
@@ -196,32 +115,16 @@ bool driverLogin(const string& username, const string& password) {
               setDriverLocation(username);
             else
               cout << "\nYour current location is already set to: " << driver["Location"] << endl;
-
-            // Load RideRequestQueue.json
-            json rideRequestQueue;
-            std::ifstream inFile("RideRequestQueue.json");
-            if (inFile.is_open()) {
-                inFile >> rideRequestQueue;
-                inFile.close();
-            } else {
-                // If the file doesn't exist or can't be read, assume it's empty
-                rideRequestQueue = json::array();
-            }
-
-            // Check if the queue is empty or not
-            if (!rideRequestQueue.empty()) {
-                // Call assignRideRequestToDriver if the queue is not empty
+            
+            if (!rideRequestQueue.empty())
                 assignRideRequestToDriver(username);
-            } else {
-                // Call availableRideRequests if the queue is empty
+            else
                 availableRideRequests(username);
-            }
-         
+            
          return true;
         }
     }
     
-    cout << "Invalid username or password." << endl;
     return false;
 }
 

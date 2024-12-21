@@ -61,6 +61,7 @@ public:
         GraphEdge* edge = getEdge(src, dest);
         if(edge != nullptr)
             return edge->weight;
+        return 0;    
     }
 
     void addNode(const string& data) {
@@ -207,6 +208,19 @@ public:
         }
     }
 
+    void printPath(vector<string> path, string src, string dest){
+        
+        int count = 0 ,size = path.size();
+      if (!path.empty()) {
+        cout << "\nShortest path from " << src << " to " << dest << ": ";
+        for (const auto& node : path)
+            if(count++ + 1 == size)
+                cout << node << " ";
+            else
+                cout << node << " -> ";
+        } 
+    }
+    
     void displayLocations() {
         int i = 1;
         for (auto node : nodes) {

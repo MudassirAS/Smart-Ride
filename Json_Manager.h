@@ -1,5 +1,5 @@
-#ifndef json_Files
-#define json_Files
+#ifndef JSON_MANAGER_H
+#define JSON_MANAGER_H
 
 #include <iostream>
 #include <fstream>
