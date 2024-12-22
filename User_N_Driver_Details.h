@@ -54,10 +54,15 @@ void registerDriver(const string& name, const string& password, const string& ph
 bool userLogin(const string& username, const string& password) {
     for (const auto& user : usersArray) {
         if (user["Name"] == username && user["Password"] == password) {
-            cout << "User login successful.\n" << endl;
-            cout << "\nDo you need a ride ? (1 / 0) : ";
+            system("cls");
+            cout << "\n-----User login successful-----\n" << endl;
+            cout << "\nDo you need a ride?\n\n1. Yes\n2. No\n";
             int choice; 
             cin >> choice;
+            while(choice != 1 && choice != 2) {
+                cout << "\nInvalid choice! Please try again: ";
+                cin >> choice;
+            }
             if (choice == 1)
                 requestRide(username);
 
@@ -93,13 +98,11 @@ void setDriverLocation(const string& username) {
      
     string location = map.getLocationFromIndex(locationIndex);
     
-    for(auto& entry : driversArray) {
-    
-    if(entry["Name"] == username){
-      entry["Location"] = location;
-      break;
-    }
-}
+    for(auto& entry : driversArray)
+        if(entry["Name"] == username){
+            entry["Location"] = location;
+            break;
+        }
 
     saveToFile(DRIVERS_FILE, driversArray);
     cout << "Location updated successfully for " << username << endl;
@@ -109,7 +112,8 @@ void setDriverLocation(const string& username) {
 bool driverLogin(const string& username, const string& password) {
     for (auto& driver : driversArray) {
         if (driver["Name"] == username && driver["Password"] == password) {
-            cout << "\nDriver login successful." << endl;
+            system("cls");
+            cout << "\n-----Driver login successful-----" << endl;
 
             if(driver["Location"] == "")
               setDriverLocation(username);
