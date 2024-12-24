@@ -1,10 +1,12 @@
 #ifndef JSON_MANAGER_H
 #define JSON_MANAGER_H
 
+
 #include <iostream>
 #include <fstream>
 #include <string>
 #include "json.hpp"
+#include "HashMap.h"
 
 using namespace std;
 using json = nlohmann::json;
@@ -15,21 +17,25 @@ const string RIDE_REQUESTS_FILE = "rideRequests.json";
 const string RIDE_HISTORY = "rideHistory.json";
 const string RIDE_REQUEST_QUEUE = "rideRequestQueue.json";
 
-json usersArray; 
-json driversArray;
-json rideRequestArray;
-json rideHistory;
-json rideRequestQueue;
-
-int userIDCounter = 1;
-int driverIDCounter = 1;
-
+HashMap<json> usersMap;
+HashMap<json> driversMap;
+HashMap<json> rideRequestMap;
+HashMap<json> rideHistoryMap;
+HashMap<json> rideRequestQueueMap;
 
 // Load JSON data from a file
 json loadFromFile(const string& fileName) {
     ifstream file(fileName);
+
+    // If the file does not exist, create one
     if (!file.is_open()) {
-        return json::array(); // Return an empty array if file does not exist
+        ofstream createFile(fileName); // Create the file
+        if (!createFile.is_open()) {
+            throw runtime_error("Failed to create the file: " + fileName);
+        }
+        createFile << json::array().dump(); // Write an empty JSON array to the file
+        createFile.close();
+        return json::array(); // Return an empty array
     }
 
     json data;
@@ -37,34 +43,36 @@ json loadFromFile(const string& fileName) {
     return data;
 }
 
+
 // Save JSON data to a file
-void saveToFile(const string& fileName, const json& jsonData) {
-    ofstream file(fileName);
-    if (file.is_open()) {
-        file << jsonData.dump(4); // Pretty print JSON with indentation
+void saveToFile(const string& fileName, const HashMap<json>& map) {
+    ofstream outFile(fileName);
+    if (outFile.is_open()) {
+        json dataArray = json::array();
+        for (const auto& entry : map.entries()) {
+            dataArray.push_back(entry);
+        }
+        outFile << dataArray.dump(4); // Pretty indentation
+        outFile.close();
     } else {
-        cerr << "Error saving to " << fileName << endl;
+        cout << "Error opening file for writing." << endl;
     }
 }
 
-// Load JSON Files
+// Load JSON files into HashMaps
 void initialization() {
-    usersArray = loadFromFile(USERS_FILE);
-    driversArray = loadFromFile(DRIVERS_FILE);
-    rideRequestArray = loadFromFile(RIDE_REQUESTS_FILE);
-    rideHistory= loadFromFile(RIDE_HISTORY);
-    rideRequestQueue = loadFromFile(RIDE_REQUEST_QUEUE);
+    auto loadToHashMap = [](const string& fileName, HashMap<json>& hashMap) {
+        json jsonArray = loadFromFile(fileName);
+        for (const auto& obj : jsonArray) {
+            hashMap.put(obj); // Add directly to the HashMap
+        }
+    };
 
-    // Determine the next available IDs
-    for (const auto& user : usersArray) {
-        string userID = user["UserID"];
-        userIDCounter = max(userIDCounter, stoi(userID.substr(1)) + 1);
-    }
-
-    for (const auto& driver : driversArray) {
-        string driverID = driver["DriverID"];
-        driverIDCounter = max(driverIDCounter, stoi(driverID.substr(1)) + 1);
-    }
+    loadToHashMap(USERS_FILE, usersMap);
+    loadToHashMap(DRIVERS_FILE, driversMap);
+    loadToHashMap(RIDE_REQUESTS_FILE, rideRequestMap);
+    loadToHashMap(RIDE_HISTORY, rideHistoryMap);
+    loadToHashMap(RIDE_REQUEST_QUEUE, rideRequestQueueMap);
 }
 
 #endif

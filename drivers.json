@@ -1,12 +1,11 @@
 [
     {
-        "DriverID": "D1",
-        "FuelAverage": 12.5,
-        "Location": "SNS",
-        "Name": "Bilal",
-        "Password": "123",
-        "PhoneNo": "03292929813",
+        "DriverName": "Bilal",
+        "FuelAverage": 11.0,
+        "Location": "C1",
+        "Password": "111",
+        "PhoneNo": "023892992",
         "VehicleName": "Toyota Yaris 1.5 CTV",
-        "VehicleRegNumber": "ALE-172"
+        "VehicleRegNumber": "ALE-991"
     }
 ]

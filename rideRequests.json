@@ -1,1 +1,29 @@
-null
+[
+    {
+        "Destination": "NMC",
+        "Driver Vehicle": "Toyota Yaris 1.5 CTV",
+        "DriverName": "Bilal",
+        "Fare": 434.91,
+        "Ride Status": "Pending",
+        "Source": "IESE",
+        "UserName": "Ali"
+    },
+    {
+        "Destination": "C1",
+        "Driver Vehicle": "Toyota Yaris 1.5 CTV",
+        "DriverName": "Bilal",
+        "Fare": 427.82,
+        "Ride Status": "Pending",
+        "Source": "NMC",
+        "UserName": "Ali"
+    },
+    {
+        "Destination": "NSHS",
+        "Driver Vehicle": "Toyota Yaris 1.5 CTV",
+        "DriverName": "Bilal",
+        "Fare": 406.55,
+        "Ride Status": "Pending",
+        "Source": "BoysHostels",
+        "UserName": "Ali"
+    }
+]

@@ -17,26 +17,23 @@ using json = nlohmann::json;
 
 // Register a new user
 void registerUser(const string& name, const string& password, const string& phoneNo, const string& email) {
-    string userID = "U" + to_string(userIDCounter++);
     json user = {
-        {"UserID", userID},
-        {"Name", name},
+        {"UserName", name},
         {"Password", password},
         {"PhoneNo", phoneNo},
         {"Email", email}
     };
 
-    usersArray.push_back(user);
-    saveToFile(USERS_FILE, usersArray);
-    cout << "User registered successfully with UserID: " << userID << endl;
+    usersMap.put(user);
+    saveToFile(USERS_FILE, usersMap);
+    cout << "User registered successfully with UserName: " << name << endl;
 }
 
 // Register a new driver
 void registerDriver(const string& name, const string& password, const string& phoneNo, const string& vehicleName, const string& vehicleRegNumber, float fuelAvg) {
-    string driverID = "D" + to_string(driverIDCounter++);
-    json driver = {
-        {"DriverID", driverID},
-        {"Name", name},
+      
+        json driver = {
+        {"DriverName", name},
         {"Password", password},
         {"PhoneNo", phoneNo},
         {"VehicleName", vehicleName},
@@ -45,15 +42,15 @@ void registerDriver(const string& name, const string& password, const string& ph
         {"Location", ""}
     };
 
-    driversArray.push_back(driver);
-    saveToFile(DRIVERS_FILE, driversArray);
-    cout << "Driver registered successfully with DriverID: " << driverID << endl;
+    driversMap.put(driver);
+    saveToFile(DRIVERS_FILE, driversMap);
+    cout << "Driver registered successfully with DriverID: " << name << endl;
 }
 
 // User login
 bool userLogin(const string& username, const string& password) {
-    for (const auto& user : usersArray) {
-        if (user["Name"] == username && user["Password"] == password) {
+    for (const auto& user : usersMap) {
+        if (user["UserName"] == username && user["Password"] == password) {
             system("cls");
             cout << "\n-----User login successful-----\n" << endl;
             cout << "\nDo you need a ride?\n\n1. Yes\n2. No\n";
@@ -98,20 +95,20 @@ void setDriverLocation(const string& username) {
      
     string location = map.getLocationFromIndex(locationIndex);
     
-    for(auto& entry : driversArray)
-        if(entry["Name"] == username){
+    for(auto& entry : driversMap)
+        if(entry["DriverName"] == username){
             entry["Location"] = location;
             break;
         }
 
-    saveToFile(DRIVERS_FILE, driversArray);
+    saveToFile(DRIVERS_FILE, driversMap);
     cout << "Location updated successfully for " << username << endl;
 }
 
 // Driver login
 bool driverLogin(const string& username, const string& password) {
-    for (auto& driver : driversArray) {
-        if (driver["Name"] == username && driver["Password"] == password) {
+    for (auto& driver : driversMap) {
+        if (driver["DriverName"] == username && driver["Password"] == password) {
             system("cls");
             cout << "\n-----Driver login successful-----" << endl;
 
@@ -120,7 +117,7 @@ bool driverLogin(const string& username, const string& password) {
             else
               cout << "\nYour current location is already set to: " << driver["Location"] << endl;
             
-            if (!rideRequestQueue.empty())
+            if (rideRequestQueueMap.size() != 0)
                 assignRideRequestToDriver(username);
             else
                 availableRideRequests(username);

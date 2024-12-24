@@ -15,40 +15,40 @@ using json = nlohmann::json;
 const int FUEL_PRICE_PER_LITRE = 260; // PKR
 
 string getDriverName(string username) {
-    for (auto& entry : driversArray)
-        if(entry["Name"] == username)
-            return entry["Name"];
+    for (auto& entry : driversMap)
+        if(entry["DriverName"] == username)
+            return entry["DriverName"];
     
     return "";
 }
 
 string getDriverVehicle(string name) {
-    for (auto& entry : driversArray)
-        if(entry["Name"] == name)
+    for (auto& entry : driversMap)
+        if(entry["DriverName"] == name)
             return entry["VehicleName"];
     
     return "";
 }
 
 string getDriverLocation(string username) {
-    for (auto& entry : driversArray)
-        if(entry["Name"] == username)
+    for (auto& entry : driversMap)
+        if(entry["DriverName"] == username)
             return entry["Location"];
     
     return "";
 }
 
-string getVehicleName(string username) {
-    for (auto& entry : driversArray)
-        if(entry["Name"] == username)
+string getVehicleUser(string username) {
+    for (auto& entry : driversMap)
+        if(entry["DriverName"] == username)
             return entry["VehicleName"];
     
     return "";
 }
 
 double getFuelAverage(string username) {
-    for (auto& entry : driversArray)
-        if (entry["Name"] == username) 
+    for (auto& entry : driversMap)
+        if (entry["DriverName"] == username) 
             if (entry.contains("FuelAverage") && entry["FuelAverage"].is_number())
                 return entry["FuelAverage"];
             else
