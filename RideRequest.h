@@ -395,7 +395,7 @@ void requestRide(const string& username) {
                  if (array[i]["DriverName"] == selectedDriverName && 
                      array[i]["Fare"] == fare &&
                      array[i]["Ride Status"] == "Accepted") {
-                     rideHistoryMap.update(i, array[i]);
+                     rideHistoryMap.put(array[i]);
                      saveToFile(RIDE_HISTORY, rideHistoryMap);
                      isAccepted = true;
                      break;
@@ -405,16 +405,15 @@ void requestRide(const string& username) {
 
         cout << "\nDriver " << selectedDriverName << " is on their way to your location. Please br ready!\n\nDriver is currently at: ";
         trackRoute(driverToSourcePath, driverDistance, map, selectedDriverName);
-        cout << "\nThe driver has reached! Kindly locate the driver!";
         
-       
-
-        // Loop (wait) till driver starts the ride.
-
-
+        cout << "\n\nThe driver has reached! Ride will start in: 5";
+        for(int i = 4; i > 0; i--){
+         Sleep(2000);
+         cout << "..." << i;
+        }
 
         // After driver has started the ride
-        cout << "\nThe ride has started. Buckle up!\n";
+        cout << "\n\nThe ride has started. Buckle up!\n";
         trackRoute(sourceToDestPath, distance, map, selectedDriverName);
     }
 
