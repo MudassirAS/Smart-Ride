@@ -250,7 +250,8 @@ public:
         graph.addEdge("NSHS", "NSTP", 350);
         graph.addEdge("NSHS", "OldGym", 650);
         graph.addEdge("NSTP", "SINES", 50);
-        graph.addEdge("Gate10", "NMC", 320);
+        graph.addEdge("Gate10", "NMC", 490);
+        graph.addEdge("NSTP", "NMC", 340);
         graph.addEdge("NMC", "ResidentialArea", 250);
         graph.addEdge("ResidentialArea", "SportsComplex", 600);
         graph.addEdge("SportsComplex", "SNS", 650);
@@ -280,8 +281,9 @@ public:
         graph.addEdge("IqbalSquare", "ConvocationGround", 680);
         graph.addEdge("MainOffice", "Gate10", 1250);
         graph.addEdge("CentralLibrary", "C3", 90);
-        graph.addEdge("C2", "C3", 300);
-        graph.addEdge("SEECS", "C2", 170);
+        graph.addEdge("C2", "C3", 630);
+        graph.addEdge("SEECS", "C2", 190);
+        graph.addEdge("SEECS", "C3", 670);
         graph.addEdge("SEECS", "IAEC", 230);
         graph.addEdge("C2", "IAEC", 160);
         graph.addEdge("IAEC", "MasjidRehmat", 80);
@@ -332,6 +334,8 @@ public:
     }
 
     string getLocationFromIndex(int index) {
+        
+        // Return the location if valid
         return nodes[index - 1]->data;
     }
 
